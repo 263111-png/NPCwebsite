@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오늘의 순간</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gowun+Dodum&family=Nanum+Pen+Script&family=Jua&family=Gaegu&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060b;--v:#a06bff;--g:#ffd66b;--ink:#f4efe6;--dim:rgba(244,239,230,.64);--ln:rgba(244,239,230,.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:'Gowun Dodum',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;overflow:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(52% 40% at 15% 10%,rgba(160,107,255,.55),transparent 70%),radial-gradient(48% 38% at 88% 30%,rgba(255,214,107,.28),transparent 72%),radial-gradient(60% 50% at 50% 105%,rgba(91,46,166,.55),transparent 70%),#07060b;animation:dr 22s ease-in-out infinite alternate}
+@keyframes dr{to{transform:scale(1.08) translate(2%,2%)}}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+.scr{display:none;flex:1;min-height:0;flex-direction:column;padding:10px 16px;overflow-y:auto;overflow-x:hidden}
+.scr.on{display:flex}
+.top{display:flex;align-items:center;gap:10px;min-height:40px}
+.top h2{margin:0;font:400 16px 'Gowun Batang',serif}
+.bk{width:36px;height:36px;border-radius:50%;border:1px solid var(--ln);background:rgba(255,255,255,.05)}
+.tabs{display:flex;flex:0 0 auto;border-top:1px solid var(--ln);background:rgba(10,7,19,.88);backdrop-filter:blur(10px)}
+.tabs.hide{display:none}
+.tabs button{flex:1;padding:8px 0 7px;background:none;border:0;color:var(--dim);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tabs button span{font-size:20px}.tabs button.on{color:var(--g)}
+.chip{padding:7px 12px;border-radius:20px;border:1px solid var(--ln);background:rgba(255,255,255,.05);font-size:12px;white-space:nowrap}
+.chip.on{border-color:var(--g);background:rgba(255,214,107,.2)}
+.btn{width:100%;padding:14px;border:0;border-radius:16px;background:linear-gradient(100deg,var(--v),var(--g));color:#150c22;font:700 15px 'Gowun Batang',serif;margin-top:auto}
+.btn:disabled{opacity:.35}
+.sm{font-size:11px;color:var(--dim)}
+/* home */
+#s-home{align-items:center;text-align:center;justify-content:center;gap:10px}
+.cambtn{width:min(48vw,180px);aspect-ratio:1;border-radius:50%;border:0;color:#1a0f2b;background:conic-gradient(from 200deg,#ffe58a,#ff9ec4,#b58cff,#ffe58a);box-shadow:0 0 0 10px rgba(255,214,107,.14),0 0 60px rgba(255,214,107,.55);display:grid;place-items:center;animation:pl 2.6s ease-in-out infinite}
+.cambtn svg{width:46%}
+@keyframes pl{50%{transform:scale(1.05);box-shadow:0 0 0 16px rgba(255,214,107,.1),0 0 80px rgba(255,214,107,.75)}}
+.go{color:var(--g);font-size:13px;letter-spacing:.08em}
+h1{font:400 clamp(23px,6.6vw,30px)/1.45 'Gowun Batang',serif;margin:4px 0;background:linear-gradient(100deg,#fff,var(--g) 50%,var(--v));-webkit-background-clip:text;background-clip:text;color:transparent}
+.fold{background:none;border:1px solid var(--ln);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--dim)}
+.fb{display:none;font-size:12.5px;line-height:1.8;color:var(--dim);text-align:left;border:1px solid var(--ln);border-radius:16px;padding:10px 14px;background:rgba(255,255,255,.04)}
+.fb.on{display:block}
+/* place */
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.pc{border:1px solid var(--ln);border-radius:18px;padding:16px 8px;background:linear-gradient(150deg,rgba(160,107,255,.18),rgba(255,255,255,.02));display:flex;align-items:center;justify-content:center;gap:8px;font:15px 'Gowun Batang',serif}
+.pc.on{border-color:var(--g);background:rgba(255,214,107,.2)}.pc.w{grid-column:1/-1}
+input[type=text]{width:100%;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--ln);color:var(--ink);font:inherit;font-size:14px;outline:0}
+/* camera */
+.stage{position:relative;width:min(100%,calc((100dvh - 245px)*.8));aspect-ratio:4/5;margin:6px auto;border-radius:18px;overflow:hidden;background:#000;border:1px solid var(--ln);touch-action:pan-y}
+.stage video{width:100%;height:100%;object-fit:cover;display:block}
+.fx{position:absolute;inset:0;pointer-events:none}
+.ov{position:absolute;inset:0;pointer-events:none}.ov svg{position:absolute;inset:0;width:100%;height:100%}
+.gl{position:absolute;transform:translate(-50%,-50%);font-size:10px;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.5);padding:2px 8px;border-radius:12px;white-space:nowrap}
+.tb{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.45);font-size:17px}
+.fname{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none}
+.tips{display:none;position:absolute;left:0;right:0;bottom:0;max-height:62%;overflow:auto;background:rgba(10,7,19,.9);padding:12px 14px;font-size:12.5px;line-height:1.6}
+.tips.on{display:block}.tips b{color:var(--g);display:block;margin-bottom:6px}.tips i{font-style:normal;color:var(--v);display:inline-block;width:44px}
+.cf{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:20px;font-size:13px;line-height:1.7;background:#000;color:var(--dim)}.cf.on{display:grid}
+.mini{padding:8px 12px;border-radius:14px;border:1px solid var(--ln);background:rgba(255,255,255,.05);font-size:12px}
+.zm{display:flex;align-items:center;gap:8px;justify-content:center}
+.zm input{flex:1;max-width:220px;accent-color:var(--g)}.zm .mini{width:34px;padding:6px 0}
+.comps{display:flex;gap:6px;overflow-x:auto;justify-content:center;padding:8px 0 4px}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 4px}
+.shutter{width:66px;height:66px;border-radius:50%;border:3px solid #fff;background:linear-gradient(140deg,var(--g),var(--v));box-shadow:0 0 0 6px rgba(255,255,255,.08)}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:99}.flash.go{animation:fl .45s}
+@keyframes fl{from{opacity:.9}to{opacity:0}}
+/* polaroid */
+.pl{container-type:inline-size;width:100%;padding:4cqw 4cqw 3cqw;border-radius:1.5cqw;box-shadow:0 20px 40px -20px #000;text-align:left}
+.ph{position:relative;aspect-ratio:4/5;overflow:hidden;background:#111;touch-action:pan-y}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;user-select:none}
+.stk{position:absolute;transform:translate(-50%,-50%);line-height:1;touch-action:none;user-select:none}
+.cap{margin-top:3.5cqw;min-height:9cqw;font-size:6.2cqw;line-height:1.35;word-break:break-all}
+.pl.mini .cap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0;font-size:8cqw}
+#pv{width:max(150px,min(76vw,340px,calc((100dvh - 360px)*.74)));margin:6px auto}
+.tl{display:flex;gap:6px;justify-content:center;margin-top:8px}
+#panel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;height:92px;overflow-y:auto;margin:6px 0;padding:2px}
+#panel .row{display:flex;gap:8px;align-items:center;width:100%}
+.stb{width:38px;height:38px;border-radius:12px;border:1px solid var(--ln);background:rgba(255,255,255,.06);font-size:20px}
+.dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0}.dot.on{border-color:#fff;transform:scale(1.15)}
+.cnt{text-align:right;font-size:11px;color:var(--dim);margin:3px 2px 0}
+/* gallery / calendar */
+.gg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.gg>div{cursor:pointer}.gg .dt{font-size:10.5px;color:var(--dim);margin-top:5px;text-align:center}
+.seg{display:flex;gap:6px;margin:4px 0}.seg button{flex:1;padding:8px;border-radius:12px;border:1px solid var(--ln);background:rgba(255,255,255,.04);font-size:13px}.seg .on{border-color:var(--g);background:rgba(255,214,107,.18)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}.ch b{font:400 18px 'Gowun Batang',serif}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dw{text-align:center;font-size:10.5px;color:var(--dim)}
+.dy{height:42px;border-radius:10px;background:rgba(255,255,255,.035);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--dim)}
+.dy.h{color:#fff;background:rgba(255,255,255,.09);cursor:pointer}.dy.t{outline:1px solid rgba(255,214,107,.6)}.dy.s{outline:2px solid #fff}
+.dy .ds{display:flex;gap:2px;height:6px}.ds i{width:6px;height:6px;border-radius:50%}
+.strip{display:flex;gap:10px;overflow-x:auto;padding:10px 2px}.strip .mi{flex:0 0 92px}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
+.mi{position:relative;cursor:pointer}.mi b{position:absolute;left:3px;top:3px;font-size:10px;background:rgba(0,0,0,.6);border-radius:8px;padding:1px 6px;color:#fff}
+.empty{margin:auto;color:var(--dim);font-size:13px;text-align:center}
+#det{display:none;position:fixed;inset:0;z-index:50;background:rgba(7,6,11,.96);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);overflow:auto;flex-direction:column;align-items:center}
+#det.on{display:flex}#dp{width:min(78vw,340px);margin-top:8px}
+#dm{font-size:12px;color:var(--g);margin-top:14px}#dt{font-size:15px;line-height:1.7;text-align:center;margin:8px 0 16px;max-width:340px;word-break:break-all}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(20,14,32,.96);border:1px solid rgba(255,214,107,.5);padding:10px 18px;border-radius:24px;font-size:12.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99}.toast.on{opacity:1}
+</style></head><body>
+<div class="app">
+<section class="scr on" id="s-home">
+  <button class="cambtn" id="goCam" aria-label="촬영 시작"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8a1 1 0 0 0 .84-.46l.92-1.42A1 1 0 0 1 9.9 3.7h4.2a1 1 0 0 1 .84.42l.92 1.42a1 1 0 0 0 .84.46h1.8A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><circle cx="12" cy="12.4" r="3.9"/></svg></button>
+  <div class="go">탭해서 촬영하기</div>
+  <h1>오늘의 순간을<br>예쁘게 남겨보세요</h1>
+  <button class="fold" id="hb">사용 방법 ▾</button>
+  <div class="fb" id="hp">① 장소를 고르면 촬영 팁이 나와요<br>② 카메라의 흰 가이드선에 맞춰 촬영<br>③ 필터·스티커로 꾸미고 한 줄 남기기<br>④ 캘린더에서 하루하루 모아보기</div>
+  <div class="sm" id="hs"></div>
+</section>
+
+<section class="scr" id="s-place">
+  <div class="top"><button class="bk" data-t="home">←</button><h2>어디에 계신가요?</h2></div>
+  <div class="pg" id="pg"></div>
+  <input type="text" id="etc" maxlength="12" placeholder="장소를 직접 적어주세요" style="display:none">
+  <button class="btn" id="pn" disabled>촬영하러 가기</button>
+</section>
+
+<section class="scr" id="s-cam">
+  <div class="top"><button class="bk" id="cb">←</button><h2 id="ct"></h2></div>
+  <div class="stage" id="stage"><video id="v" playsinline muted autoplay></video><div class="fx" id="cfx"></div><div class="ov" id="ov"></div>
+    <button class="tb" id="tipb">💡</button><div class="fname" id="fn"></div><div class="tips" id="tips"></div>
+    <div class="cf" id="cf"><div><div id="fm">카메라를 열 수 없어요.</div><div id="fw" class="sm" style="margin:8px 0 14px"></div>
+      <button class="mini" id="rc">다시 시도</button> <button class="mini" id="ot">새 탭에서 열기</button> <button class="mini" id="pf">사진 불러오기</button></div></div></div>
+  <div class="zm"><button class="mini" id="zo">−</button><input type="range" id="zr" min="1" max="4" step=".1" value="1"><button class="mini" id="zi">＋</button><span class="sm" id="zv" style="width:34px">1.0×</span></div>
+  <div class="comps" id="comps"></div>
+  <div class="sh"><button class="mini" id="sw">화면 전환</button><button class="shutter" id="shot" aria-label="촬영"></button><button class="mini" id="gt">가이드 끄기</button></div>
+</section>
+
+<section class="scr" id="s-edit">
+  <div class="top"><button class="bk" id="eb">←</button><h2>꾸미고 기록하기</h2></div>
+  <div id="pv"></div>
+  <input type="text" id="tx" maxlength="40" placeholder="오늘을 한 줄로 적어보세요">
+  <div class="cnt"><span id="cnt">0</span> / 40</div>
+  <div class="tl" id="tl"><button class="chip on" data-tl="f">필터</button><button class="chip" data-tl="s">스티커</button><button class="chip" data-tl="t">글꼴·색</button><button class="chip" data-tl="c">달력 색</button></div>
+  <div id="panel"></div>
+  <button class="btn" id="save" style="margin-top:4px">기록하기</button>
+</section>
+
+<section class="scr" id="s-gallery">
+  <div class="top"><h2>기록 갤러리</h2></div><div id="gb"></div>
+</section>
+
+<section class="scr" id="s-cal">
+  <div class="seg" id="seg"><button data-m="cal">달력</button><button data-m="sum">한 달 모아보기</button></div>
+  <div class="ch"><button class="bk" id="pm">‹</button><b id="ym"></b><button class="bk" id="nm">›</button></div>
+  <div class="sm" id="cst" style="text-align:center;margin-bottom:6px"></div>
+  <div id="cbd"></div>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button data-t="home" class="on"><span>🏠</span>홈</button>
+  <button data-t="gallery"><span>🖼</span>기록</button>
+  <button data-t="cal"><span>🗓</span>캘린더</button>
+</nav>
+</div>
+<div id="det"><button class="bk" id="dc" style="align-self:flex-start">✕</button><div id="dp"></div><div id="dm"></div><div id="dt"></div><button class="mini" id="dd">기록 삭제</button></div>
+<div class="flash" id="flash"></div><div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const pad=n=>String(n).padStart(2,'0'),ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t.h);t.h=setTimeout(()=>t.classList.remove('on'),1800)};
+/* ---- 저장소 (이 기기 브라우저) ---- */
+const db=new Promise((r,j)=>{try{const q=indexedDB.open('moment_diary_v1',1);q.onupgradeneeded=()=>q.result.createObjectStore('entries',{keyPath:'id'});q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)}catch(e){j(e)}});
+const st=async(m,f)=>{try{const d=await db;return await new Promise((r,j)=>{const t=d.transaction('entries',m),q=f(t.objectStore('entries'));t.oncomplete=()=>r(q&&q.result);t.onerror=()=>j(t.error)})}catch(x){return null}};
+const TC=['#2a2233','#ffffff','#7a3fd1','#b9791c','#d9467a','#1f6f5c'],FR=['#faf6ee','#15101f','#e6dcff','#fff1c2','#ffd9e4','#d8f1ea'],CO=['#a06bff','#ffd66b','#ff8fb1','#7fe3c4','#6fb0ff','#ff9a62'];
+const FONTS=[['바탕','Gowun Batang'],['도담','Gowun Dodum'],['손글씨','Nanum Pen Script'],['통통','Jua'],['가게','Gaegu']];
+const STK=['✨','💜','🌙','⭐','🌸','☕','🎀','🎞️','💛','🍀','🦋','🫧'];
+const FL=[{n:'원본',f:'none',o:'none'},
+{n:'필름',f:'sepia(.25) contrast(1.12) saturate(1.25)',o:'radial-gradient(transparent 55%,rgba(0,0,0,.35)),repeating-radial-gradient(rgba(255,255,255,.06) 0 1px,transparent 1px 3px)'},
+{n:'빈티지',f:'sepia(.6) contrast(.95) brightness(1.05)',o:'radial-gradient(transparent 50%,rgba(60,30,0,.42))'},
+{n:'흑백',f:'grayscale(1) contrast(1.15)',o:'none'},
+{n:'로즈',f:'saturate(1.3) hue-rotate(-12deg) brightness(1.05)',o:'rgba(255,140,170,.16)'},
+{n:'드림',f:'saturate(1.25) contrast(1.05)',o:'linear-gradient(160deg,rgba(160,107,255,.32),rgba(255,214,107,.18))'},
+{n:'골든',f:'sepia(.3) saturate(1.5) brightness(1.06)',o:'rgba(255,190,80,.18)'},
+{n:'쿨블루',f:'saturate(.9) hue-rotate(-14deg) brightness(1.04)',o:'rgba(80,140,255,.16)'}];
+/* 구도: [이름, 가이드종류, a, b, 라벨, 위치, 각도, 밝기, 구도, 방향] */
+const P={
+cafe:{emo:'☕',name:'카페',c:[
+['하이앵글','t',33,33,'음료는 여기','컵에서 한 뼘 위','45° 위에서 내려찍기','창가 옆빛, 천장등 정면은 피하기','음료는 좌상단, 우측은 여백','창을 옆에 두고 몸을 45° 틀기'],
+['창가 옆빛','f',[8,28,42,56],0,'창빛 닿는 곳','창에서 한 걸음 안쪽','살짝 아래에서 수평','밝은 창 기준 +0.5','주인공을 창 쪽 좌측에','빛이 옆에서 오게'],
+['정면 감성','s',0,0,'좌우 대칭','테이블 눈높이','정면 수평 0°','노란 조명 살리고 -0.5','가운데 대칭, 위아래 여백','정면에서 반듯하게']]},
+park:{emo:'🌿',name:'공원',c:[
+['지평선 1/3','h',66,0,'지평선 아래 1/3','허리 높이로 낮추기','수평 유지, 살짝 로우','역광이면 노출 +1','하늘 2/3, 잔디 1/3','해를 등지거나 옆에 두기'],
+['나무 프레임','f',[22,26,56,60],0,'피사체','나무 아래 그늘 안쪽','정면, 가지가 위 테두리에','그늘·햇빛 경계에서 측광','가지로 테두리, 가운데 피사체','빛이 새는 쪽을 정면으로'],
+['하늘 넓게','h',82,0,'땅은 얇게','땅에 가깝게 쭈그려서','아래에서 위로 올려찍기','하늘 기준 -0.5','하늘 4/5, 땅 1/5','노을·구름 방향 정면']]},
+street:{emo:'🌃',name:'길거리',c:[
+['소실점','v',0,0,'소실점','도로 중앙, 눈높이 아래','정면 수평, 건물 수직','간판빛에 맞춰 -1','길이 가운데로 모이게','노을 오는 쪽 정면'],
+['대각선','d',0,0,'대각선 라인','벽·계단 모서리 옆','15° 기울여 대각선 만들기','그림자 대비 살리기','대각선으로 시선 이동','건물 라인 따라 비스듬히'],
+['인물 여백','t',66,66,'인물은 우하단','한 걸음 뒤에서 전신','눈높이 정면','실루엣은 -1','인물 작게, 배경 크게','걷는 방향으로 여백 두기']]},
+home:{emo:'🛋',name:'집',c:[
+['중앙 정사각','c',0,0,'주인공 하나만','피사체에서 50cm','정면 눈높이','형광등 끄고 창빛만','정사각 안에 하나만','창을 옆에 두기'],
+['창빛 옆','t',66,33,'주인공은 우상단','창에서 1~2걸음','살짝 아래에서','노랑기 낮추고 대비 살리기','창빛 방향으로 여백','창을 한쪽에 두기'],
+['위에서 수직','c',0,0,'수직으로 내려찍기','팔을 뻗어 위에서','정확히 수직 90°','창 옆에서 그림자 피하기','물건을 정사각 안에 모으기','빛이 옆에서 오게']]},
+etc:{emo:'✨',name:'기타',c:[
+['3분할','t',33,66,'주인공은 교차점','한 걸음 물러나서','눈높이 정면','밝은 곳과 어두운 곳의 중간','교차점에 주인공','빛 오는 쪽 45° 옆에서'],
+['수평선','h',66,0,'수평선 2/3','수평선 맞춰서','수평 0°','하늘 기준 -0.5','수평선은 1/3 또는 2/3','빛의 반대쪽 피하기'],
+['클로즈업','c',0,0,'디테일에 가까이','피사체에 10cm','정면 또는 살짝 위','부드러운 빛, 그림자 없이','가운데 디테일 크게','초점을 탭해서 맞추기']]}};
+/* ---- 가이드선 ---- */
+const ln=(a,b,c,d,o=.95,w=.7,da='')=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#fff" stroke-opacity="${o}" stroke-width="${w}" stroke-dasharray="${da}" vector-effect="non-scaling-stroke"/>`;
+const rc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="none" stroke="#fff" stroke-width=".9" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+const lb=(x,y,t)=>`<div class="gl" style="left:${x}%;top:${y}%">${t}</div>`;
+function guide(c){const[,t,a,b,l]=c;let s='',h='';const g=()=>ln(33.3,0,33.3,100,.75)+ln(66.6,0,66.6,100,.75)+ln(0,33.3,100,33.3,.75)+ln(0,66.6,100,66.6,.75);
+if(t==='t'){s=g()+`<circle cx="${a}" cy="${b}" r="3" fill="none" stroke="#fff" stroke-width=".9" vector-effect="non-scaling-stroke"/>`;h=lb(a,b<50?b+8:b-8,l)}
+if(t==='h'){s=ln(33.3,0,33.3,100,.4)+ln(66.6,0,66.6,100,.4)+ln(0,a,100,a,.95,1);h=lb(50,a>50?a-6:a+6,l)}
+if(t==='v'){s=ln(0,100,50,50)+ln(100,100,50,50)+ln(0,0,50,50,.5)+ln(100,0,50,50,.5)+ln(0,50,100,50,.5,.5,'3 2');h=lb(50,42,l)}
+if(t==='c'){s=rc(20,20,60,60)+ln(50,46,50,54)+ln(46,50,54,50);h=lb(50,86,l)}
+if(t==='d'){s=ln(0,0,100,100,.7)+ln(100,0,0,100,.7);h=lb(50,90,l)}
+if(t==='s'){s=ln(50,0,50,100,.9,.7)+ln(0,33.3,100,33.3,.4)+ln(0,66.6,100,66.6,.4);h=lb(50,90,l)}
+if(t==='f'){s=g()+rc(...a);h=lb(a[0]+a[2]/2,a[1]+a[3]/2,l)}
+return`<svg viewBox="0 0 100 100" preserveAspectRatio="none">${s}</svg>`+h}
+/* ---- 폴라로이드 렌더러 (어디서나 동일하게 축소/확대) ---- */
+const norm=e=>({fi:0,stk:[],font:0,tc:TC[0],frame:FR[0],color:CO[0],...e});
+const pol=(e,cls='')=>{const f=FL[e.fi]||FL[0];return`<div class="pl ${cls}" style="background:${e.frame};color:${e.tc};font-family:'${FONTS[e.font][1]}',cursive"><div class="ph"><img src="${e.photo}" style="filter:${f.f}" draggable="false"><div class="fx" style="background:${f.o}"></div>${e.stk.map((s,i)=>`<span class="stk" data-i="${i}" style="left:${s.x}%;top:${s.y}%;font-size:calc(${s.z}*13cqw)">${s.e}</span>`).join('')}</div><div class="cap">${esc(e.text)||'&nbsp;'}</div></div>`};
+const swipe=(el,cb)=>{let x=null;el.addEventListener('pointerdown',e=>{if(!e.target.closest('.stk,button,.tips'))x=e.clientX});el.addEventListener('pointerup',e=>{if(x==null)return;const d=e.clientX-x;x=null;if(Math.abs(d)>40)cb(d<0?1:-1)});el.addEventListener('pointercancel',()=>x=null)};
+/* ---- 화면 전환 ---- */
+let E=[],cur='home';
+const load=async()=>{E=((await st('readonly',s=>s.getAll()))||[]).map(norm).sort((a,b)=>b.ts-a.ts)};
+function show(n){if(cur==='cam'&&n!=='cam')stopCam();cur=n;$$('.scr').forEach(s=>s.classList.toggle('on',s.id==='s-'+n));$('#tabs').classList.toggle('hide',n==='cam'||n==='edit');
+const t={home:'home',place:'home',gallery:'gallery',cal:'cal'}[n];$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+({home:rHome,gallery:rGal,cal:rCal})[n]?.()}
+$$('[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+/* ---- 홈 ---- */
+$('#hb').onclick=()=>{const o=$('#hp').classList.toggle('on');$('#hb').textContent=o?'사용 방법 ▴':'사용 방법 ▾'};
+$('#goCam').onclick=()=>show('place');
+function rHome(){const t=ymd(new Date());$('#hs').textContent=`오늘 ${E.filter(e=>e.date===t).length}장 · 전체 ${E.length}장 기록`}
+/* ---- 장소 ---- */
+let sel=null;
+$('#pg').innerHTML=Object.entries(P).map(([k,v])=>`<button class="pc${k==='etc'?' w':''}" data-k="${k}"><span>${v.emo}</span>${v.name}</button>`).join('');
+$$('.pc').forEach(b=>b.onclick=()=>{sel=b.dataset.k;$$('.pc').forEach(x=>x.classList.toggle('on',x===b));$('#etc').style.display=sel==='etc'?'block':'none';chk()});
+$('#etc').oninput=chk;const label=()=>sel==='etc'?$('#etc').value.trim():P[sel].name;
+function chk(){$('#pn').disabled=!sel||(sel==='etc'&&!label())}
+$('#pn').onclick=()=>{$('#ct').textContent=`${P[sel].emo} ${label()}`;setComp(0);show('cam');startCam()};
+/* ---- 카메라 ---- */
+let ci=0,cfi=0,z=1,facing='environment',stream=null,gOn=1;
+function setComp(i){ci=i;const c=P[sel].c[i];$('#comps').innerHTML=P[sel].c.map((x,j)=>`<button class="chip${j===i?' on':''}" data-j="${j}">${x[0]}</button>`).join('');
+$$('#comps .chip').forEach(b=>b.onclick=()=>setComp(+b.dataset.j));$('#ov').innerHTML=guide(c);
+$('#tips').innerHTML=`<b>${c[0]} · ${label()}</b>`+['위치','각도','밝기','구도','방향'].map((k,j)=>`<div><i>${k}</i>${c[5+j]}</div>`).join('');fxApply()}
+function fxApply(){const f=FL[cfi];$('#v').style.filter=f.f;$('#cfx').style.background=f.o;$('#fn').textContent=`${f.n}  ${FL.map((_,i)=>i===cfi?'●':'○').join('')}  ← 옆으로 밀어 필터 변경`}
+swipe($('#stage'),d=>{cfi=(cfi+d+FL.length)%FL.length;fxApply()});
+$('#tipb').onclick=()=>$('#tips').classList.toggle('on');
+$('#gt').onclick=()=>{gOn=!gOn;$('#ov').style.display=gOn?'':'none';$('#gt').textContent=gOn?'가이드 끄기':'가이드 켜기'};
+function setZ(v){z=Math.max(1,Math.min(4,+v));$('#zr').value=z;$('#zv').textContent=z.toFixed(1)+'×';vt()}
+const vt=()=>$('#v').style.transform=`scale(${z}) scaleX(${facing==='user'?-1:1})`;
+$('#zr').oninput=e=>setZ(e.target.value);$('#zo').onclick=()=>setZ(z-.5);$('#zi').onclick=()=>setZ(z+.5);
+const fail=(m,w)=>{$('#fm').textContent=m;$('#fw').textContent=w||'';$('#cf').classList.add('on')};
+async function startCam(){stopCam();$('#cf').classList.remove('on');setZ(1);
+if(!window.isSecureContext)return fail('보안 연결(https)에서만 카메라를 쓸 수 있어요.');
+if(!navigator.mediaDevices?.getUserMedia)return fail('이 화면에서는 카메라가 차단돼 있어요.','브라우저(새 탭)에서 열면 권한 창이 떠요.');
+try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1440},height:{ideal:1920}},audio:false});const v=$('#v');v.srcObject=stream;await v.play().catch(()=>{});vt()}
+catch(e){const n=e?.name;fail(n==='NotAllowedError'?'카메라 권한이 거부됐어요.':n==='NotFoundError'?'사용할 수 있는 카메라가 없어요.':n==='NotReadableError'?'다른 앱이 카메라를 쓰고 있어요.':'카메라를 열 수 없어요.',n==='NotAllowedError'?'주소창 자물쇠 → 카메라 → 허용 후 다시 시도':n||'')}}
+function stopCam(){stream?.getTracks().forEach(t=>t.stop());stream=null}
+$('#rc').onclick=startCam;$('#ot').onclick=()=>window.open(location.href,'_blank','noopener');
+$('#sw').onclick=()=>{facing=facing==='environment'?'user':'environment';startCam()};
+$('#cb').onclick=()=>show('place');
+const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.capture='environment';fi.style.display='none';document.body.appendChild(fi);
+$('#pf').onclick=()=>fi.click();
+fi.onchange=()=>{const f=fi.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=800;c.height=1000;let sw=im.width,sh=sw*1.25;if(sh>im.height){sh=im.height;sw=sh*.8}c.getContext('2d').drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,0,800,1000);toEdit(c.toDataURL('image/jpeg',.82));URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f);fi.value=''};
+$('#shot').onclick=()=>{const v=$('#v');if(!stream||!v.videoWidth)return toast('카메라 준비 중이에요');
+const vw=v.videoWidth,vh=v.videoHeight;let sw=vw,sh=vw*1.25;if(sh>vh){sh=vh;sw=vh*.8}sw/=z;sh/=z;
+const c=document.createElement('canvas');c.width=800;c.height=1000;const x=c.getContext('2d');if(facing==='user'){x.translate(800,0);x.scale(-1,1)}
+x.drawImage(v,(vw-sw)/2,(vh-sh)/2,sw,sh,0,0,800,1000);const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');toEdit(c.toDataURL('image/jpeg',.82))};
+/* ---- 꾸미기 ---- */
+let D=null,tool='f';
+function toEdit(photo){D={photo,fi:cfi,stk:[],font:0,tc:TC[0],frame:FR[0],color:CO[0],text:'',place:label(),emo:P[sel].emo};tool='f';$('#tx').value='';$('#cnt').textContent=0;
+$$('#tl .chip').forEach(c=>c.classList.toggle('on',c.dataset.tl==='f'));stopCam();show('edit');rPv();panel()}
+function rPv(){$('#pv').innerHTML=pol(D);swipe($('#pv .ph'),d=>setFi(D.fi+d));
+$$('#pv .stk').forEach(el=>{let sx,sy,mv,r,i=+el.dataset.i;
+el.onpointerdown=e=>{e.preventDefault();el.setPointerCapture(e.pointerId);r=el.parentNode.getBoundingClientRect();sx=e.clientX;sy=e.clientY;mv=0};
+el.onpointermove=e=>{if(!el.hasPointerCapture(e.pointerId))return;if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4)mv=1;if(!mv)return;const s=D.stk[i];s.x=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));s.y=Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100));el.style.left=s.x+'%';el.style.top=s.y+'%'};
+el.onpointerup=()=>{if(!mv){const s=D.stk[i];s.z=s.z>=2.4?.8:+(s.z+.6).toFixed(1);el.style.fontSize=`calc(${s.z}*13cqw)`}}})}
+function setFi(i){D.fi=(i+FL.length)%FL.length;const f=FL[D.fi];$('#pv .ph img').style.filter=f.f;$('#pv .fx').style.background=f.o;if(tool==='f')panel();toast(f.n)}
+const dots=(a,c,k)=>a.map(v=>`<button class="dot${v===c?' on':''}" data-k="${k}" data-v="${v}" style="background:${v}"></button>`).join('');
+function panel(){const p=$('#panel');
+if(tool==='f')p.innerHTML=FL.map((f,i)=>`<button class="chip${i===D.fi?' on':''}" data-fi="${i}">${f.n}</button>`).join('')+'<div class="sm">사진을 옆으로 밀어도 바뀌어요</div>';
+if(tool==='s')p.innerHTML=STK.map(e=>`<button class="stb" data-stk="${e}">${e}</button>`).join('')+'<button class="chip" data-undo="1">↩ 하나 지우기</button><div class="sm">끌어서 이동 · 탭하면 크기 변경</div>';
+if(tool==='t')p.innerHTML=`<div class="row">${FONTS.map((f,i)=>`<button class="chip${i===D.font?' on':''}" data-font="${i}" style="font-family:'${f[1]}'">${f[0]}</button>`).join('')}</div><div class="row"><span class="sm">글자</span>${dots(TC,D.tc,'tc')}</div><div class="row"><span class="sm">프레임</span>${dots(FR,D.frame,'frame')}</div>`;
+if(tool==='c')p.innerHTML=`<div class="row"><span class="sm">달력에 표시될 색</span>${dots(CO,D.color,'color')}</div>`}
+$('#panel').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+if(d.fi!==undefined)return setFi(+d.fi);
+if(d.stk){D.stk.push({e:d.stk,x:50,y:50,z:1.2});return rPv()}
+if(d.undo){D.stk.pop();return rPv()}
+if(d.font!==undefined){D.font=+d.font;rPv();return panel()}
+if(d.k){D[d.k]=d.v;if(d.k!=='color')rPv();panel()}};
+$('#tl').onclick=e=>{const b=e.target.closest('button');if(!b)return;tool=b.dataset.tl;$$('#tl .chip').forEach(c=>c.classList.toggle('on',c===b));panel()};
+$('#tx').oninput=e=>{D.text=e.target.value;$('#cnt').textContent=e.target.value.length;$('#pv .cap').textContent=e.target.value||'\u00a0'};
+$('#eb').onclick=()=>{show('cam');startCam()};
+$('#save').onclick=async()=>{if(!D.text.trim())return toast('한 줄을 적어주세요');const n=new Date();
+await st('readwrite',s=>s.put({...D,text:D.text.trim(),id:'e'+Date.now(),ts:Date.now(),date:ymd(n),time:pad(n.getHours())+':'+pad(n.getMinutes())}));
+await load();toast('오늘의 순간을 저장했어요 ✨');show('gallery')};
+/* ---- 갤러리 ---- */
+function rGal(){$('#gb').innerHTML=E.length?`<div class="gg">${E.map(e=>`<div data-id="${e.id}">${pol(e)}<div class="dt">${e.date.slice(5).replace('-','.')} · ${esc(e.place||'')}</div></div>`).join('')}</div>`:'<div class="empty" style="height:50vh;display:grid;place-items:center">아직 기록이 없어요.<br>첫 순간을 남겨볼까요?</div>';bindOpen('#gb')}
+const bindOpen=r=>$$(r+' [data-id]').forEach(el=>el.onclick=()=>det(el.dataset.id));
+/* ---- 캘린더 / 한 달 모아보기 ---- */
+let vY=null,vM,cm='cal',sd=null;
+const streak=()=>{const s=new Set(E.map(e=>e.date));let c=0,d=new Date();if(!s.has(ymd(d)))d.setDate(d.getDate()-1);while(s.has(ymd(d))){c++;d.setDate(d.getDate()-1)}return c};
+function rCal(){const n=new Date();if(vY==null){vY=n.getFullYear();vM=n.getMonth()}
+const mk=vY+'-'+pad(vM+1),me=E.filter(e=>e.date.startsWith(mk));
+$('#ym').textContent=`${vY}년 ${vM+1}월`;$$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===cm));
+$('#cst').textContent=`${new Set(me.map(e=>e.date)).size}일 · ${me.length}장 · 연속 ${streak()}일`;
+if(cm==='sum'){$('#cbd').innerHTML=me.length?`<div class="mg">${me.slice().reverse().map(e=>`<div class="mi" data-id="${e.id}">${pol(e,'mini')}<b>${+e.date.slice(8)}</b></div>`).join('')}</div>`:'<div class="empty">이 달의 기록이 없어요</div>';return bindOpen('#cbd')}
+const by={};me.forEach(e=>(by[e.date]=by[e.date]||[]).push(e));const f=new Date(vY,vM,1).getDay(),L=new Date(vY,vM+1,0).getDate();
+let h='<div class="cg">'+'일월화수목금토'.split('').map(d=>`<div class="dw">${d}</div>`).join('')+'<div></div>'.repeat(f);
+for(let d=1;d<=L;d++){const k=mk+'-'+pad(d),l=by[k];h+=`<div class="dy${l?' h':''}${k===ymd(n)?' t':''}${k===sd?' s':''}" data-d="${k}">${d}<span class="ds">${l?[...new Set(l.map(e=>e.color))].slice(0,3).map(c=>`<i style="background:${c}"></i>`).join(''):''}</span></div>`}
+h+='</div>';const dl=sd&&by[sd];if(dl)h+=`<div class="sm" style="margin-top:10px">${sd.replace(/-/g,'.')} · ${dl.length}장</div><div class="strip">${dl.map(e=>`<div class="mi" data-id="${e.id}">${pol(e,'mini')}</div>`).join('')}</div>`;
+$('#cbd').innerHTML=h;$$('#cbd .dy.h').forEach(el=>el.onclick=()=>{sd=el.dataset.d;rCal()});bindOpen('#cbd')}
+$('#pm').onclick=()=>{vM--;if(vM<0){vM=11;vY--}sd=null;rCal()};$('#nm').onclick=()=>{vM++;if(vM>11){vM=0;vY++}sd=null;rCal()};
+$$('#seg button').forEach(b=>b.onclick=()=>{cm=b.dataset.m;rCal()});
+/* ---- 상세 ---- */
+let dId=null,dq=0;
+function det(id){const e=E.find(x=>x.id===id);if(!e)return;dId=id;dq=0;$('#dd').textContent='기록 삭제';$('#dp').innerHTML=pol(e);$('#dm').textContent=`${e.date.replace(/-/g,'.')} ${e.time||''} · ${e.emo||''} ${e.place||''}`;$('#dt').textContent=e.text;$('#det').classList.add('on')}
+$('#dc').onclick=()=>$('#det').classList.remove('on');
+$('#dd').onclick=async()=>{if(!dq){dq=1;$('#dd').textContent='정말 삭제할까요? 한 번 더 누르세요';return}await st('readwrite',s=>s.delete(dId));await load();$('#det').classList.remove('on');show(cur);toast('삭제했어요')};
+load().then(rHome);
+</script></body></html><!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오늘의 순간</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gowun+Dodum&family=Nanum+Pen+Script&family=Jua&family=Gaegu&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060b;--v:#a06bff;--g:#ffd66b;--ink:#f4efe6;--dim:rgba(244,239,230,.64);--ln:rgba(244,239,230,.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:'Gowun Dodum',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;overflow:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(52% 40% at 15% 10%,rgba(160,107,255,.55),transparent 70%),radial-gradient(48% 38% at 88% 30%,rgba(255,214,107,.28),transparent 72%),radial-gradient(60% 50% at 50% 105%,rgba(91,46,166,.55),transparent 70%),#07060b;animation:dr 22s ease-in-out infinite alternate}
+@keyframes dr{to{transform:scale(1.08) translate(2%,2%)}}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+.scr{display:none;flex:1;min-height:0;flex-direction:column;padding:10px 16px;overflow-y:auto;overflow-x:hidden}
+.scr.on{display:flex}
+.top{display:flex;align-items:center;gap:10px;min-height:40px}
+.top h2{margin:0;font:400 16px 'Gowun Batang',serif}
+.bk{width:36px;height:36px;border-radius:50%;border:1px solid var(--ln);background:rgba(255,255,255,.05)}
+.tabs{display:flex;flex:0 0 auto;border-top:1px solid var(--ln);background:rgba(10,7,19,.88);backdrop-filter:blur(10px)}
+.tabs.hide{display:none}
+.tabs button{flex:1;padding:8px 0 7px;background:none;border:0;color:var(--dim);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tabs button span{font-size:20px}.tabs button.on{color:var(--g)}
+.chip{padding:7px 12px;border-radius:20px;border:1px solid var(--ln);background:rgba(255,255,255,.05);font-size:12px;white-space:nowrap}
+.chip.on{border-color:var(--g);background:rgba(255,214,107,.2)}
+.btn{width:100%;padding:14px;border:0;border-radius:16px;background:linear-gradient(100deg,var(--v),var(--g));color:#150c22;font:700 15px 'Gowun Batang',serif;margin-top:auto}
+.btn:disabled{opacity:.35}
+.sm{font-size:11px;color:var(--dim)}
+/* home */
+#s-home{align-items:center;text-align:center;justify-content:center;gap:10px}
+.cambtn{width:min(48vw,180px);aspect-ratio:1;border-radius:50%;border:0;color:#1a0f2b;background:conic-gradient(from 200deg,#ffe58a,#ff9ec4,#b58cff,#ffe58a);box-shadow:0 0 0 10px rgba(255,214,107,.14),0 0 60px rgba(255,214,107,.55);display:grid;place-items:center;animation:pl 2.6s ease-in-out infinite}
+.cambtn svg{width:46%}
+@keyframes pl{50%{transform:scale(1.05);box-shadow:0 0 0 16px rgba(255,214,107,.1),0 0 80px rgba(255,214,107,.75)}}
+.go{color:var(--g);font-size:13px;letter-spacing:.08em}
+h1{font:400 clamp(23px,6.6vw,30px)/1.45 'Gowun Batang',serif;margin:4px 0;background:linear-gradient(100deg,#fff,var(--g) 50%,var(--v));-webkit-background-clip:text;background-clip:text;color:transparent}
+.fold{background:none;border:1px solid var(--ln);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--dim)}
+.fb{display:none;font-size:12.5px;line-height:1.8;color:var(--dim);text-align:left;border:1px solid var(--ln);border-radius:16px;padding:10px 14px;background:rgba(255,255,255,.04)}
+.fb.on{display:block}
+/* place */
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.pc{border:1px solid var(--ln);border-radius:18px;padding:16px 8px;background:linear-gradient(150deg,rgba(160,107,255,.18),rgba(255,255,255,.02));display:flex;align-items:center;justify-content:center;gap:8px;font:15px 'Gowun Batang',serif}
+.pc.on{border-color:var(--g);background:rgba(255,214,107,.2)}.pc.w{grid-column:1/-1}
+input[type=text]{width:100%;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--ln);color:var(--ink);font:inherit;font-size:14px;outline:0}
+/* camera */
+.stage{position:relative;width:min(100%,calc((100dvh - 245px)*.8));aspect-ratio:4/5;margin:6px auto;border-radius:18px;overflow:hidden;background:#000;border:1px solid var(--ln);touch-action:pan-y}
+.stage video{width:100%;height:100%;object-fit:cover;display:block}
+.fx{position:absolute;inset:0;pointer-events:none}
+.ov{position:absolute;inset:0;pointer-events:none}.ov svg{position:absolute;inset:0;width:100%;height:100%}
+.gl{position:absolute;transform:translate(-50%,-50%);font-size:10px;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.5);padding:2px 8px;border-radius:12px;white-space:nowrap}
+.tb{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.45);font-size:17px}
+.fname{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none}
+.tips{display:none;position:absolute;left:0;right:0;bottom:0;max-height:62%;overflow:auto;background:rgba(10,7,19,.9);padding:12px 14px;font-size:12.5px;line-height:1.6}
+.tips.on{display:block}.tips b{color:var(--g);display:block;margin-bottom:6px}.tips i{font-style:normal;color:var(--v);display:inline-block;width:44px}
+.cf{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:20px;font-size:13px;line-height:1.7;background:#000;color:var(--dim)}.cf.on{display:grid}
+.mini{padding:8px 12px;border-radius:14px;border:1px solid var(--ln);background:rgba(255,255,255,.05);font-size:12px}
+.zm{display:flex;align-items:center;gap:8px;justify-content:center}
+.zm input{flex:1;max-width:220px;accent-color:var(--g)}.zm .mini{width:34px;padding:6px 0}
+.comps{display:flex;gap:6px;overflow-x:auto;justify-content:center;padding:8px 0 4px}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 4px}
+.shutter{width:66px;height:66px;border-radius:50%;border:3px solid #fff;background:linear-gradient(140deg,var(--g),var(--v));box-shadow:0 0 0 6px rgba(255,255,255,.08)}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:99}.flash.go{animation:fl .45s}
+@keyframes fl{from{opacity:.9}to{opacity:0}}
+/* polaroid */
+.pl{container-type:inline-size;width:100%;padding:4cqw 4cqw 3cqw;border-radius:1.5cqw;box-shadow:0 20px 40px -20px #000;text-align:left}
+.ph{position:relative;aspect-ratio:4/5;overflow:hidden;background:#111;touch-action:pan-y}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;user-select:none}
+.stk{position:absolute;transform:translate(-50%,-50%);line-height:1;touch-action:none;user-select:none}
+.cap{margin-top:3.5cqw;min-height:9cqw;font-size:6.2cqw;line-height:1.35;word-break:break-all}
+.pl.mini .cap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0;font-size:8cqw}
+#pv{width:max(150px,min(76vw,340px,calc((100dvh - 360px)*.74)));margin:6px auto}
+.tl{display:flex;gap:6px;justify-content:center;margin-top:8px}
+#panel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;height:92px;overflow-y:auto;margin:6px 0;padding:2px}
+#panel .row{display:flex;gap:8px;align-items:center;width:100%}
+.stb{width:38px;height:38px;border-radius:12px;border:1px solid var(--ln);background:rgba(255,255,255,.06);font-size:20px}
+.dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0}.dot.on{border-color:#fff;transform:scale(1.15)}
+.cnt{text-align:right;font-size:11px;color:var(--dim);margin:3px 2px 0}
+/* gallery / calendar */
+.gg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.gg>div{cursor:pointer}.gg .dt{font-size:10.5px;color:var(--dim);margin-top:5px;text-align:center}
+.seg{display:flex;gap:6px;margin:4px 0}.seg button{flex:1;padding:8px;border-radius:12px;border:1px solid var(--ln);background:rgba(255,255,255,.04);font-size:13px}.seg .on{border-color:var(--g);background:rgba(255,214,107,.18)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}.ch b{font:400 18px 'Gowun Batang',serif}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dw{text-align:center;font-size:10.5px;color:var(--dim)}
+.dy{height:42px;border-radius:10px;background:rgba(255,255,255,.035);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--dim)}
+.dy.h{color:#fff;background:rgba(255,255,255,.09);cursor:pointer}.dy.t{outline:1px solid rgba(255,214,107,.6)}.dy.s{outline:2px solid #fff}
+.dy .ds{display:flex;gap:2px;height:6px}.ds i{width:6px;height:6px;border-radius:50%}
+.strip{display:flex;gap:10px;overflow-x:auto;padding:10px 2px}.strip .mi{flex:0 0 92px}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
+.mi{position:relative;cursor:pointer}.mi b{position:absolute;left:3px;top:3px;font-size:10px;background:rgba(0,0,0,.6);border-radius:8px;padding:1px 6px;color:#fff}
+.empty{margin:auto;color:var(--dim);font-size:13px;text-align:center}
+#det{display:none;position:fixed;inset:0;z-index:50;background:rgba(7,6,11,.96);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);overflow:auto;flex-direction:column;align-items:center}
+#det.on{display:flex}#dp{width:min(78vw,340px);margin-top:8px}
+#dm{font-size:12px;color:var(--g);margin-top:14px}#dt{font-size:15px;line-height:1.7;text-align:center;margin:8px 0 16px;max-width:340px;word-break:break-all}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(20,14,32,.96);border:1px solid rgba(255,214,107,.5);padding:10px 18px;border-radius:24px;font-size:12.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99}.toast.on{opacity:1}
+</style></head><body>
+<div class="app">
+<section class="scr on" id="s-home">
+  <button class="cambtn" id="goCam" aria-label="촬영 시작"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8a1 1 0 0 0 .84-.46l.92-1.42A1 1 0 0 1 9.9 3.7h4.2a1 1 0 0 1 .84.42l.92 1.42a1 1 0 0 0 .84.46h1.8A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><circle cx="12" cy="12.4" r="3.9"/></svg></button>
+  <div class="go">탭해서 촬영하기</div>
+  <h1>오늘의 순간을<br>예쁘게 남겨보세요</h1>
+  <button class="fold" id="hb">사용 방법 ▾</button>
+  <div class="fb" id="hp">① 장소를 고르면 촬영 팁이 나와요<br>② 카메라의 흰 가이드선에 맞춰 촬영<br>③ 필터·스티커로 꾸미고 한 줄 남기기<br>④ 캘린더에서 하루하루 모아보기</div>
+  <div class="sm" id="hs"></div>
+</section>
+
+<section class="scr" id="s-place">
+  <div class="top"><button class="bk" data-t="home">←</button><h2>어디에 계신가요?</h2></div>
+  <div class="pg" id="pg"></div>
+  <input type="text" id="etc" maxlength="12" placeholder="장소를 직접 적어주세요" style="display:none">
+  <button class="btn" id="pn" disabled>촬영하러 가기</button>
+</section>
+
+<section class="scr" id="s-cam">
+  <div class="top"><button class="bk" id="cb">←</button><h2 id="ct"></h2></div>
+  <div class="stage" id="stage"><video id="v" playsinline muted autoplay></video><div class="fx" id="cfx"></div><div class="ov" id="ov"></div>
+    <button class="tb" id="tipb">💡</button><div class="fname" id="fn"></div><div class="tips" id="tips"></div>
+    <div class="cf" id="cf"><div><div id="fm">카메라를 열 수 없어요.</div><div id="fw" class="sm" style="margin:8px 0 14px"></div>
+      <button class="mini" id="rc">다시 시도</button> <button class="mini" id="ot">새 탭에서 열기</button> <button class="mini" id="pf">사진 불러오기</button></div></div></div>
+  <div class="zm"><button class="mini" id="zo">−</button><input type="range" id="zr" min="1" max="4" step=".1" value="1"><button class="mini" id="zi">＋</button><span class="sm" id="zv" style="width:34px">1.0×</span></div>
+  <div class="comps" id="comps"></div>
+  <div class="sh"><button class="mini" id="sw">화면 전환</button><button class="shutter" id="shot" aria-label="촬영"></button><button class="mini" id="gt">가이드 끄기</button></div>
+</section>
+
+<section class="scr" id="s-edit">
+  <div class="top"><button class="bk" id="eb">←</button><h2>꾸미고 기록하기</h2></div>
+  <div id="pv"></div>
+  <input type="text" id="tx" maxlength="40" placeholder="오늘을 한 줄로 적어보세요">
+  <div class="cnt"><span id="cnt">0</span> / 40</div>
+  <div class="tl" id="tl"><button class="chip on" data-tl="f">필터</button><button class="chip" data-tl="s">스티커</button><button class="chip" data-tl="t">글꼴·색</button><button class="chip" data-tl="c">달력 색</button></div>
+  <div id="panel"></div>
+  <button class="btn" id="save" style="margin-top:4px">기록하기</button>
+</section>
+
+<section class="scr" id="s-gallery">
+  <div class="top"><h2>기록 갤러리</h2></div><div id="gb"></div>
+</section>
+
+<section class="scr" id="s-cal">
+  <div class="seg" id="seg"><button data-m="cal">달력</button><button data-m="sum">한 달 모아보기</button></div>
+  <div class="ch"><button class="bk" id="pm">‹</button><b id="ym"></b><button class="bk" id="nm">›</button></div>
+  <div class="sm" id="cst" style="text-align:center;margin-bottom:6px"></div>
+  <div id="cbd"></div>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button data-t="home" class="on"><span>🏠</span>홈</button>
+  <button data-t="gallery"><span>🖼</span>기록</button>
+  <button data-t="cal"><span>🗓</span>캘린더</button>
+</nav>
+</div>
+<div id="det"><button class="bk" id="dc" style="align-self:flex-start">✕</button><div id="dp"></div><div id="dm"></div><div id="dt"></div><button class="mini" id="dd">기록 삭제</button></div>
+<div class="flash" id="flash"></div><div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const pad=n=>String(n).padStart(2,'0'),ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t.h);t.h=setTimeout(()=>t.classList.remove('on'),1800)};
+/* ---- 저장소 (이 기기 브라우저) ---- */
+const db=new Promise((r,j)=>{try{const q=indexedDB.open('moment_diary_v1',1);q.onupgradeneeded=()=>q.result.createObjectStore('entries',{keyPath:'id'});q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)}catch(e){j(e)}});
+const st=async(m,f)=>{try{const d=await db;return await new Promise((r,j)=>{const t=d.transaction('entries',m),q=f(t.objectStore('entries'));t.oncomplete=()=>r(q&&q.result);t.onerror=()=>j(t.error)})}catch(x){return null}};
+const TC=['#2a2233','#ffffff','#7a3fd1','#b9791c','#d9467a','#1f6f5c'],FR=['#faf6ee','#15101f','#e6dcff','#fff1c2','#ffd9e4','#d8f1ea'],CO=['#a06bff','#ffd66b','#ff8fb1','#7fe3c4','#6fb0ff','#ff9a62'];
+const FONTS=[['바탕','Gowun Batang'],['도담','Gowun Dodum'],['손글씨','Nanum Pen Script'],['통통','Jua'],['가게','Gaegu']];
+const STK=['✨','💜','🌙','⭐','🌸','☕','🎀','🎞️','💛','🍀','🦋','🫧'];
+const FL=[{n:'원본',f:'none',o:'none'},
+{n:'필름',f:'sepia(.25) contrast(1.12) saturate(1.25)',o:'radial-gradient(transparent 55%,rgba(0,0,0,.35)),repeating-radial-gradient(rgba(255,255,255,.06) 0 1px,transparent 1px 3px)'},
+{n:'빈티지',f:'sepia(.6) contrast(.95) brightness(1.05)',o:'radial-gradient(transparent 50%,rgba(60,30,0,.42))'},
+{n:'흑백',f:'grayscale(1) contrast(1.15)',o:'none'},
+{n:'로즈',f:'saturate(1.3) hue-rotate(-12deg) brightness(1.05)',o:'rgba(255,140,170,.16)'},
+{n:'드림',f:'saturate(1.25) contrast(1.05)',o:'linear-gradient(160deg,rgba(160,107,255,.32),rgba(255,214,107,.18))'},
+{n:'골든',f:'sepia(.3) saturate(1.5) brightness(1.06)',o:'rgba(255,190,80,.18)'},
+{n:'쿨블루',f:'saturate(.9) hue-rotate(-14deg) brightness(1.04)',o:'rgba(80,140,255,.16)'}];
+/* 구도: [이름, 가이드종류, a, b, 라벨, 위치, 각도, 밝기, 구도, 방향] */
+const P={
+cafe:{emo:'☕',name:'카페',c:[
+['하이앵글','t',33,33,'음료는 여기','컵에서 한 뼘 위','45° 위에서 내려찍기','창가 옆빛, 천장등 정면은 피하기','음료는 좌상단, 우측은 여백','창을 옆에 두고 몸을 45° 틀기'],
+['창가 옆빛','f',[8,28,42,56],0,'창빛 닿는 곳','창에서 한 걸음 안쪽','살짝 아래에서 수평','밝은 창 기준 +0.5','주인공을 창 쪽 좌측에','빛이 옆에서 오게'],
+['정면 감성','s',0,0,'좌우 대칭','테이블 눈높이','정면 수평 0°','노란 조명 살리고 -0.5','가운데 대칭, 위아래 여백','정면에서 반듯하게']]},
+park:{emo:'🌿',name:'공원',c:[
+['지평선 1/3','h',66,0,'지평선 아래 1/3','허리 높이로 낮추기','수평 유지, 살짝 로우','역광이면 노출 +1','하늘 2/3, 잔디 1/3','해를 등지거나 옆에 두기'],
+['나무 프레임','f',[22,26,56,60],0,'피사체','나무 아래 그늘 안쪽','정면, 가지가 위 테두리에','그늘·햇빛 경계에서 측광','가지로 테두리, 가운데 피사체','빛이 새는 쪽을 정면으로'],
+['하늘 넓게','h',82,0,'땅은 얇게','땅에 가깝게 쭈그려서','아래에서 위로 올려찍기','하늘 기준 -0.5','하늘 4/5, 땅 1/5','노을·구름 방향 정면']]},
+street:{emo:'🌃',name:'길거리',c:[
+['소실점','v',0,0,'소실점','도로 중앙, 눈높이 아래','정면 수평, 건물 수직','간판빛에 맞춰 -1','길이 가운데로 모이게','노을 오는 쪽 정면'],
+['대각선','d',0,0,'대각선 라인','벽·계단 모서리 옆','15° 기울여 대각선 만들기','그림자 대비 살리기','대각선으로 시선 이동','건물 라인 따라 비스듬히'],
+['인물 여백','t',66,66,'인물은 우하단','한 걸음 뒤에서 전신','눈높이 정면','실루엣은 -1','인물 작게, 배경 크게','걷는 방향으로 여백 두기']]},
+home:{emo:'🛋',name:'집',c:[
+['중앙 정사각','c',0,0,'주인공 하나만','피사체에서 50cm','정면 눈높이','형광등 끄고 창빛만','정사각 안에 하나만','창을 옆에 두기'],
+['창빛 옆','t',66,33,'주인공은 우상단','창에서 1~2걸음','살짝 아래에서','노랑기 낮추고 대비 살리기','창빛 방향으로 여백','창을 한쪽에 두기'],
+['위에서 수직','c',0,0,'수직으로 내려찍기','팔을 뻗어 위에서','정확히 수직 90°','창 옆에서 그림자 피하기','물건을 정사각 안에 모으기','빛이 옆에서 오게']]},
+etc:{emo:'✨',name:'기타',c:[
+['3분할','t',33,66,'주인공은 교차점','한 걸음 물러나서','눈높이 정면','밝은 곳과 어두운 곳의 중간','교차점에 주인공','빛 오는 쪽 45° 옆에서'],
+['수평선','h',66,0,'수평선 2/3','수평선 맞춰서','수평 0°','하늘 기준 -0.5','수평선은 1/3 또는 2/3','빛의 반대쪽 피하기'],
+['클로즈업','c',0,0,'디테일에 가까이','피사체에 10cm','정면 또는 살짝 위','부드러운 빛, 그림자 없이','가운데 디테일 크게','초점을 탭해서 맞추기']]}};
+/* ---- 가이드선 ---- */
+const ln=(a,b,c,d,o=.95,w=.7,da='')=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#fff" stroke-opacity="${o}" stroke-width="${w}" stroke-dasharray="${da}" vector-effect="non-scaling-stroke"/>`;
+const rc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="none" stroke="#fff" stroke-width=".9" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+const lb=(x,y,t)=>`<div class="gl" style="left:${x}%;top:${y}%">${t}</div>`;
+function guide(c){const[,t,a,b,l]=c;let s='',h='';const g=()=>ln(33.3,0,33.3,100,.75)+ln(66.6,0,66.6,100,.75)+ln(0,33.3,100,33.3,.75)+ln(0,66.6,100,66.6,.75);
+if(t==='t'){s=g()+`<circle cx="${a}" cy="${b}" r="3" fill="none" stroke="#fff" stroke-width=".9" vector-effect="non-scaling-stroke"/>`;h=lb(a,b<50?b+8:b-8,l)}
+if(t==='h'){s=ln(33.3,0,33.3,100,.4)+ln(66.6,0,66.6,100,.4)+ln(0,a,100,a,.95,1);h=lb(50,a>50?a-6:a+6,l)}
+if(t==='v'){s=ln(0,100,50,50)+ln(100,100,50,50)+ln(0,0,50,50,.5)+ln(100,0,50,50,.5)+ln(0,50,100,50,.5,.5,'3 2');h=lb(50,42,l)}
+if(t==='c'){s=rc(20,20,60,60)+ln(50,46,50,54)+ln(46,50,54,50);h=lb(50,86,l)}
+if(t==='d'){s=ln(0,0,100,100,.7)+ln(100,0,0,100,.7);h=lb(50,90,l)}
+if(t==='s'){s=ln(50,0,50,100,.9,.7)+ln(0,33.3,100,33.3,.4)+ln(0,66.6,100,66.6,.4);h=lb(50,90,l)}
+if(t==='f'){s=g()+rc(...a);h=lb(a[0]+a[2]/2,a[1]+a[3]/2,l)}
+return`<svg viewBox="0 0 100 100" preserveAspectRatio="none">${s}</svg>`+h}
+/* ---- 폴라로이드 렌더러 (어디서나 동일하게 축소/확대) ---- */
+const norm=e=>({fi:0,stk:[],font:0,tc:TC[0],frame:FR[0],color:CO[0],...e});
+const pol=(e,cls='')=>{const f=FL[e.fi]||FL[0];return`<div class="pl ${cls}" style="background:${e.frame};color:${e.tc};font-family:'${FONTS[e.font][1]}',cursive"><div class="ph"><img src="${e.photo}" style="filter:${f.f}" draggable="false"><div class="fx" style="background:${f.o}"></div>${e.stk.map((s,i)=>`<span class="stk" data-i="${i}" style="left:${s.x}%;top:${s.y}%;font-size:calc(${s.z}*13cqw)">${s.e}</span>`).join('')}</div><div class="cap">${esc(e.text)||'&nbsp;'}</div></div>`};
+const swipe=(el,cb)=>{let x=null;el.addEventListener('pointerdown',e=>{if(!e.target.closest('.stk,button,.tips'))x=e.clientX});el.addEventListener('pointerup',e=>{if(x==null)return;const d=e.clientX-x;x=null;if(Math.abs(d)>40)cb(d<0?1:-1)});el.addEventListener('pointercancel',()=>x=null)};
+/* ---- 화면 전환 ---- */
+let E=[],cur='home';
+const load=async()=>{E=((await st('readonly',s=>s.getAll()))||[]).map(norm).sort((a,b)=>b.ts-a.ts)};
+function show(n){if(cur==='cam'&&n!=='cam')stopCam();cur=n;$$('.scr').forEach(s=>s.classList.toggle('on',s.id==='s-'+n));$('#tabs').classList.toggle('hide',n==='cam'||n==='edit');
+const t={home:'home',place:'home',gallery:'gallery',cal:'cal'}[n];$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+({home:rHome,gallery:rGal,cal:rCal})[n]?.()}
+$$('[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+/* ---- 홈 ---- */
+$('#hb').onclick=()=>{const o=$('#hp').classList.toggle('on');$('#hb').textContent=o?'사용 방법 ▴':'사용 방법 ▾'};
+$('#goCam').onclick=()=>show('place');
+function rHome(){const t=ymd(new Date());$('#hs').textContent=`오늘 ${E.filter(e=>e.date===t).length}장 · 전체 ${E.length}장 기록`}
+/* ---- 장소 ---- */
+let sel=null;
+$('#pg').innerHTML=Object.entries(P).map(([k,v])=>`<button class="pc${k==='etc'?' w':''}" data-k="${k}"><span>${v.emo}</span>${v.name}</button>`).join('');
+$$('.pc').forEach(b=>b.onclick=()=>{sel=b.dataset.k;$$('.pc').forEach(x=>x.classList.toggle('on',x===b));$('#etc').style.display=sel==='etc'?'block':'none';chk()});
+$('#etc').oninput=chk;const label=()=>sel==='etc'?$('#etc').value.trim():P[sel].name;
+function chk(){$('#pn').disabled=!sel||(sel==='etc'&&!label())}
+$('#pn').onclick=()=>{$('#ct').textContent=`${P[sel].emo} ${label()}`;setComp(0);show('cam');startCam()};
+/* ---- 카메라 ---- */
+let ci=0,cfi=0,z=1,facing='environment',stream=null,gOn=1;
+function setComp(i){ci=i;const c=P[sel].c[i];$('#comps').innerHTML=P[sel].c.map((x,j)=>`<button class="chip${j===i?' on':''}" data-j="${j}">${x[0]}</button>`).join('');
+$$('#comps .chip').forEach(b=>b.onclick=()=>setComp(+b.dataset.j));$('#ov').innerHTML=guide(c);
+$('#tips').innerHTML=`<b>${c[0]} · ${label()}</b>`+['위치','각도','밝기','구도','방향'].map((k,j)=>`<div><i>${k}</i>${c[5+j]}</div>`).join('');fxApply()}
+function fxApply(){const f=FL[cfi];$('#v').style.filter=f.f;$('#cfx').style.background=f.o;$('#fn').textContent=`${f.n}  ${FL.map((_,i)=>i===cfi?'●':'○').join('')}  ← 옆으로 밀어 필터 변경`}
+swipe($('#stage'),d=>{cfi=(cfi+d+FL.length)%FL.length;fxApply()});
+$('#tipb').onclick=()=>$('#tips').classList.toggle('on');
+$('#gt').onclick=()=>{gOn=!gOn;$('#ov').style.display=gOn?'':'none';$('#gt').textContent=gOn?'가이드 끄기':'가이드 켜기'};
+function setZ(v){z=Math.max(1,Math.min(4,+v));$('#zr').value=z;$('#zv').textContent=z.toFixed(1)+'×';vt()}
+const vt=()=>$('#v').style.transform=`scale(${z}) scaleX(${facing==='user'?-1:1})`;
+$('#zr').oninput=e=>setZ(e.target.value);$('#zo').onclick=()=>setZ(z-.5);$('#zi').onclick=()=>setZ(z+.5);
+const fail=(m,w)=>{$('#fm').textContent=m;$('#fw').textContent=w||'';$('#cf').classList.add('on')};
+async function startCam(){stopCam();$('#cf').classList.remove('on');setZ(1);
+if(!window.isSecureContext)return fail('보안 연결(https)에서만 카메라를 쓸 수 있어요.');
+if(!navigator.mediaDevices?.getUserMedia)return fail('이 화면에서는 카메라가 차단돼 있어요.','브라우저(새 탭)에서 열면 권한 창이 떠요.');
+try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1440},height:{ideal:1920}},audio:false});const v=$('#v');v.srcObject=stream;await v.play().catch(()=>{});vt()}
+catch(e){const n=e?.name;fail(n==='NotAllowedError'?'카메라 권한이 거부됐어요.':n==='NotFoundError'?'사용할 수 있는 카메라가 없어요.':n==='NotReadableError'?'다른 앱이 카메라를 쓰고 있어요.':'카메라를 열 수 없어요.',n==='NotAllowedError'?'주소창 자물쇠 → 카메라 → 허용 후 다시 시도':n||'')}}
+function stopCam(){stream?.getTracks().forEach(t=>t.stop());stream=null}
+$('#rc').onclick=startCam;$('#ot').onclick=()=>window.open(location.href,'_blank','noopener');
+$('#sw').onclick=()=>{facing=facing==='environment'?'user':'environment';startCam()};
+$('#cb').onclick=()=>show('place');
+const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.capture='environment';fi.style.display='none';document.body.appendChild(fi);
+$('#pf').onclick=()=>fi.click();
+fi.onchange=()=>{const f=fi.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=800;c.height=1000;let sw=im.width,sh=sw*1.25;if(sh>im.height){sh=im.height;sw=sh*.8}c.getContext('2d').drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,0,800,1000);toEdit(c.toDataURL('image/jpeg',.82));URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f);fi.value=''};
+$('#shot').onclick=()=>{const v=$('#v');if(!stream||!v.videoWidth)return toast('카메라 준비 중이에요');
+const vw=v.videoWidth,vh=v.videoHeight;let sw=vw,sh=vw*1.25;if(sh>vh){sh=vh;sw=vh*.8}sw/=z;sh/=z;
+const c=document.createElement('canvas');c.width=800;c.height=1000;const x=c.getContext('2d');if(facing==='user'){x.translate(800,0);x.scale(-1,1)}
+x.drawImage(v,(vw-sw)/2,(vh-sh)/2,sw,sh,0,0,800,1000);const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');toEdit(c.toDataURL('image/jpeg',.82))};
+/* ---- 꾸미기 ---- */
+let D=null,tool='f';
+function toEdit(photo){D={photo,fi:cfi,stk:[],font:0,tc:TC[0],frame:FR[0],color:CO[0],text:'',place:label(),emo:P[sel].emo};tool='f';$('#tx').value='';$('#cnt').textContent=0;
+$$('#tl .chip').forEach(c=>c.classList.toggle('on',c.dataset.tl==='f'));stopCam();show('edit');rPv();panel()}
+function rPv(){$('#pv').innerHTML=pol(D);swipe($('#pv .ph'),d=>setFi(D.fi+d));
+$$('#pv .stk').forEach(el=>{let sx,sy,mv,r,i=+el.dataset.i;
+el.onpointerdown=e=>{e.preventDefault();el.setPointerCapture(e.pointerId);r=el.parentNode.getBoundingClientRect();sx=e.clientX;sy=e.clientY;mv=0};
+el.onpointermove=e=>{if(!el.hasPointerCapture(e.pointerId))return;if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4)mv=1;if(!mv)return;const s=D.stk[i];s.x=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));s.y=Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100));el.style.left=s.x+'%';el.style.top=s.y+'%'};
+el.onpointerup=()=>{if(!mv){const s=D.stk[i];s.z=s.z>=2.4?.8:+(s.z+.6).toFixed(1);el.style.fontSize=`calc(${s.z}*13cqw)`}}})}
+function setFi(i){D.fi=(i+FL.length)%FL.length;const f=FL[D.fi];$('#pv .ph img').style.filter=f.f;$('#pv .fx').style.background=f.o;if(tool==='f')panel();toast(f.n)}
+const dots=(a,c,k)=>a.map(v=>`<button class="dot${v===c?' on':''}" data-k="${k}" data-v="${v}" style="background:${v}"></button>`).join('');
+function panel(){const p=$('#panel');
+if(tool==='f')p.innerHTML=FL.map((f,i)=>`<button class="chip${i===D.fi?' on':''}" data-fi="${i}">${f.n}</button>`).join('')+'<div class="sm">사진을 옆으로 밀어도 바뀌어요</div>';
+if(tool==='s')p.innerHTML=STK.map(e=>`<button class="stb" data-stk="${e}">${e}</button>`).join('')+'<button class="chip" data-undo="1">↩ 하나 지우기</button><div class="sm">끌어서 이동 · 탭하면 크기 변경</div>';
+if(tool==='t')p.innerHTML=`<div class="row">${FONTS.map((f,i)=>`<button class="chip${i===D.font?' on':''}" data-font="${i}" style="font-family:'${f[1]}'">${f[0]}</button>`).join('')}</div><div class="row"><span class="sm">글자</span>${dots(TC,D.tc,'tc')}</div><div class="row"><span class="sm">프레임</span>${dots(FR,D.frame,'frame')}</div>`;
+if(tool==='c')p.innerHTML=`<div class="row"><span class="sm">달력에 표시될 색</span>${dots(CO,D.color,'color')}</div>`}
+$('#panel').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+if(d.fi!==undefined)return setFi(+d.fi);
+if(d.stk){D.stk.push({e:d.stk,x:50,y:50,z:1.2});return rPv()}
+if(d.undo){D.stk.pop();return rPv()}
+if(d.font!==undefined){D.font=+d.font;rPv();return panel()}
+if(d.k){D[d.k]=d.v;if(d.k!=='color')rPv();panel()}};
+$('#tl').onclick=e=>{const b=e.target.closest('button');if(!b)return;tool=b.dataset.tl;$$('#tl .chip').forEach(c=>c.classList.toggle('on',c===b));panel()};
+$('#tx').oninput=e=>{D.text=e.target.value;$('#cnt').textContent=e.target.value.length;$('#pv .cap').textContent=e.target.value||'\u00a0'};
+$('#eb').onclick=()=>{show('cam');startCam()};
+$('#save').onclick=async()=>{if(!D.text.trim())return toast('한 줄을 적어주세요');const n=new Date();
+await st('readwrite',s=>s.put({...D,text:D.text.trim(),id:'e'+Date.now(),ts:Date.now(),date:ymd(n),time:pad(n.getHours())+':'+pad(n.getMinutes())}));
+await load();toast('오늘의 순간을 저장했어요 ✨');show('gallery')};
+/* ---- 갤러리 ---- */
+function rGal(){$('#gb').innerHTML=E.length?`<div class="gg">${E.map(e=>`<div data-id="${e.id}">${pol(e)}<div class="dt">${e.date.slice(5).replace('-','.')} · ${esc(e.place||'')}</div></div>`).join('')}</div>`:'<div class="empty" style="height:50vh;display:grid;place-items:center">아직 기록이 없어요.<br>첫 순간을 남겨볼까요?</div>';bindOpen('#gb')}
+const bindOpen=r=>$$(r+' [data-id]').forEach(el=>el.onclick=()=>det(el.dataset.id));
+/* ---- 캘린더 / 한 달 모아보기 ---- */
+let vY=null,vM,cm='cal',sd=null;
+const streak=()=>{const s=new Set(E.map(e=>e.date));let c=0,d=new Date();if(!s.has(ymd(d)))d.setDate(d.getDate()-1);while(s.has(ymd(d))){c++;d.setDate(d.getDate()-1)}return c};
+function rCal(){const n=new Date();if(vY==null){vY=n.getFullYear();vM=n.getMonth()}
+const mk=vY+'-'+pad(vM+1),me=E.filter(e=>e.date.startsWith(mk));
+$('#ym').textContent=`${vY}년 ${vM+1}월`;$$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===cm));
+$('#cst').textContent=`${new Set(me.map(e=>e.date)).size}일 · ${me.length}장 · 연속 ${streak()}일`;
+if(cm==='sum'){$('#cbd').innerHTML=me.length?`<div class="mg">${me.slice().reverse().map(e=>`<div class="mi" data-id="${e.id}">${pol(e,'mini')}<b>${+e.date.slice(8)}</b></div>`).join('')}</div>`:'<div class="empty">이 달의 기록이 없어요</div>';return bindOpen('#cbd')}
+const by={};me.forEach(e=>(by[e.date]=by[e.date]||[]).push(e));const f=new Date(vY,vM,1).getDay(),L=new Date(vY,vM+1,0).getDate();
+let h='<div class="cg">'+'일월화수목금토'.split('').map(d=>`<div class="dw">${d}</div>`).join('')+'<div></div>'.repeat(f);
+for(let d=1;d<=L;d++){const k=mk+'-'+pad(d),l=by[k];h+=`<div class="dy${l?' h':''}${k===ymd(n)?' t':''}${k===sd?' s':''}" data-d="${k}">${d}<span class="ds">${l?[...new Set(l.map(e=>e.color))].slice(0,3).map(c=>`<i style="background:${c}"></i>`).join(''):''}</span></div>`}
+h+='</div>';const dl=sd&&by[sd];if(dl)h+=`<div class="sm" style="margin-top:10px">${sd.replace(/-/g,'.')} · ${dl.length}장</div><div class="strip">${dl.map(e=>`<div class="mi" data-id="${e.id}">${pol(e,'mini')}</div>`).join('')}</div>`;
+$('#cbd').innerHTML=h;$$('#cbd .dy.h').forEach(el=>el.onclick=()=>{sd=el.dataset.d;rCal()});bindOpen('#cbd')}
+$('#pm').onclick=()=>{vM--;if(vM<0){vM=11;vY--}sd=null;rCal()};$('#nm').onclick=()=>{vM++;if(vM>11){vM=0;vY++}sd=null;rCal()};
+$$('#seg button').forEach(b=>b.onclick=()=>{cm=b.dataset.m;rCal()});
+/* ---- 상세 ---- */
+let dId=null,dq=0;
+function det(id){const e=E.find(x=>x.id===id);if(!e)return;dId=id;dq=0;$('#dd').textContent='기록 삭제';$('#dp').innerHTML=pol(e);$('#dm').textContent=`${e.date.replace(/-/g,'.')} ${e.time||''} · ${e.emo||''} ${e.place||''}`;$('#dt').textContent=e.text;$('#det').classList.add('on')}
+$('#dc').onclick=()=>$('#det').classList.remove('on');
+$('#dd').onclick=async()=>{if(!dq){dq=1;$('#dd').textContent='정말 삭제할까요? 한 번 더 누르세요';return}await st('readwrite',s=>s.delete(dId));await load();$('#det').classList.remove('on');show(cur);toast('삭제했어요')};
+load().then(rHome);
+</script></body></html>
